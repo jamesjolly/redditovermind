@@ -6,9 +6,10 @@ from collections import defaultdict
 import nimfa
 from matplotlib import pyplot
 from numpy.matrixlib import matrix
+from string import punctuation
 
-c_K = 10 # number of topics
-c_NMF_MAXITR = 10
+c_K = 5 # number of topics
+c_NMF_MAXITR = 5000
 
 c_DATA_DIR = 'data'
 
@@ -35,7 +36,7 @@ def load_data(data_dir):
 def get_post_words(post):
     word_counts = defaultdict(int)
     for comment in post['comments']:
-        words = [word.lower().strip() for word in comment.split()]
+        words = [word.lower().strip(punctuation) for word in comment.split()]
         for word in words:
             if len(word) >= c_MIN_WORD_LEN and len(word) <= c_MAX_WORD_LEN:
                 word_counts[word] += 1
@@ -62,6 +63,15 @@ def nmf(matrix, k=c_K):
     fctr_res = nimfa.mf_run(fctr)
     return fctr_res.basis(), fctr_res.coef()
 
+def get_top_feature_items(M, items_per_feature=10):
+    top_items = [ ]
+    feature_count, item_count = M.shape
+    for feature_id in range(feature_count):
+        weighted_items = [(item_id, M[feature_id, item_id]) for item_id in range(item_count)]
+        weighted_items = sorted(weighted_items, key=lambda l:l[1])
+        top_items.append(weighted_items[-items_per_feature:])
+    return top_items
+
 if __name__ == "__main__":
     
     vocab = defaultdict(int)
@@ -76,4 +86,11 @@ if __name__ == "__main__":
              if count < c_MAX_WC_CUTOFF and count > c_MIN_WC_CUTOFF]
     post_x_words = matrix(post_words_matrix(post_word_bags, vocab))
     basis, coef = nmf(post_x_words)
-
+    
+    print "factorized into:", \
+          "\nbasis (posts x topics)", basis.shape, \
+          "\ncoef (topics x words)", coef.shape
+    for top_words, top_posts in zip(get_top_feature_items(coef), get_top_feature_items(basis.transpose())):
+        print "\n~~~\ntop words:", " ".join([vocab[word_id][0] for word_id, weight in top_words]), \
+              "\ntop posts:", "\n".join([post_word_bags[post_id][0] for post_id, weight in top_posts]), "\n~~~"
+    
