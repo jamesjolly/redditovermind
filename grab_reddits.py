@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+"""
+redditovermind 0.1
+Copyright (C) 2013, James Jolly (jamesjolly@gmail.com)
+See MIT-LICENSE.txt for legalese and README.md for usage.
+"""
 
-c_TARGET_SUBREDDIT = 'worldnews'
+c_DATA_DIR = 'data' # empty dir to put the reddit post outfiles
+
+c_TARGET_SUBREDDIT = 'worldnews' # what do you wish to mine today?
 
 c_BATCH_WRITE = 10
 c_MAX_PER_GRAB = 1000
@@ -10,8 +17,8 @@ c_USER_AGENT = 'descriptive reddit miner user agent'
 c_USER = 'reddit username'
 c_PASS = 'reddit password'
 
-c_MAX_REPLACES = 100
-c_HAS_REPLIES = 5
+c_MAX_REPLACES = 100 # don't surface too much deeply hidden content per url
+c_HAS_REPLIES = 5 # only dive into hidden content when there enough replies to it
 
 import praw
 import pickle
@@ -20,7 +27,7 @@ from time import sleep
 
 def write_posts(posts, grab_id, dump_id):
     # send these to a database IRL =)
-    outfile = 'data/out_' + str(grab_id) + '_' + str(dump_id) + '.pkl'
+    outfile = c_DATA_DIR + '/out_' + str(grab_id) + '_' + str(dump_id) + '.pkl'
     pickle.dump(posts, open(outfile, 'wb'))
     print 'saved', outfile
 

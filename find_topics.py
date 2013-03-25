@@ -1,23 +1,27 @@
 #!/usr/bin/env python
+"""
+redditovermind 0.1
+Copyright (C) 2013, James Jolly (jamesjolly@gmail.com)
+See MIT-LICENSE.txt for legalese and README.md for usage.
+"""
 
 import pickle
 import commands
 from collections import defaultdict
 import nimfa
-from matplotlib import pyplot
 from numpy.matrixlib import matrix
 from string import punctuation
 
+c_DATA_DIR = 'data' # dir containing output of grab_reddits
+
 c_K = 5 # number of topics
-c_NMF_MAXITR = 5000
+c_NMF_MAXITR = 5000 # when to bail if taking too long to factorize
 
-c_DATA_DIR = 'data'
+c_MIN_WORD_LEN = 3 # keep words longer than this
+c_MAX_WORD_LEN = 15 # but under this length
 
-c_MIN_WORD_LEN = 3
-c_MAX_WORD_LEN = 15
-
-c_MIN_WC_CUTOFF = 10
-c_MAX_WC_CUTOFF = 100
+c_MIN_WC_CUTOFF = 10 # don't keep words that are too specific (only appearing a handful of posts)
+c_MAX_WC_CUTOFF = 100 # don't keep non-specific words (that appear frequently everywhere)
 
 def run(cmd):
    status, output = commands.getstatusoutput(cmd)
