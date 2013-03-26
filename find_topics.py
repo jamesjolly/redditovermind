@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 """
 redditovermind 0.1
-Copyright (C) 2013, James Jolly (jamesjolly@gmail.com)
+Copyright (C) 2013, James Jolly
 See MIT-LICENSE.txt for legalese and README.md for usage.
 """
 
 import pickle
 import commands
 from collections import defaultdict
-import nimfa
-from numpy.matrixlib import matrix
 from string import punctuation
+
+import nimfa
+from numpy import matrix
 
 c_DATA_DIR = 'data' # dir containing output of grab_reddits
 
@@ -19,7 +20,6 @@ c_NMF_MAXITR = 5000 # when to bail if taking too long to factorize
 
 c_MIN_WORD_LEN = 3 # keep words longer than this
 c_MAX_WORD_LEN = 15 # but under this length
-
 c_MIN_WC_CUTOFF = 10 # don't keep words that are too specific (only appearing a handful of posts)
 c_MAX_WC_CUTOFF = 100 # don't keep non-specific words (that appear frequently everywhere)
 
@@ -53,26 +53,21 @@ def add_to_vocab(post_words, vocab):
 def post_words_matrix(post_word_bags, vocab):
     post_x_words = [ ]
     for url, words in post_word_bags:
-        row = [ ]
-        for word, count in vocab:
-            if word in words:
-                row.append(count)
-            else:
-                row.append(0)
-        post_x_words.append(row)
+        post_row = [count if word in words else 0 for word, count in vocab]
+        post_x_words.append(post_row)
     return post_x_words
 
 def nmf(matrix, k=c_K):
     fctr = nimfa.mf(matrix, seed='random_vcol', method='lsnmf', rank=k, max_iter=c_NMF_MAXITR)
-    fctr_res = nimfa.mf_run(fctr)
-    return fctr_res.basis(), fctr_res.coef()
+    fctr_result = nimfa.mf_run(fctr)
+    return fctr_result.basis(), fctr_result.coef()
 
 def get_top_feature_items(M, items_per_feature=10):
     top_items = [ ]
     feature_count, item_count = M.shape
     for feature_id in range(feature_count):
         weighted_items = [(item_id, M[feature_id, item_id]) for item_id in range(item_count)]
-        weighted_items = sorted(weighted_items, key=lambda l:l[1])
+        weighted_items = sorted(weighted_items, key=lambda item:item[1])
         top_items.append(weighted_items[-items_per_feature:])
     return top_items
 

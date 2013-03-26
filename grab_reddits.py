@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 redditovermind 0.1
-Copyright (C) 2013, James Jolly (jamesjolly@gmail.com)
+Copyright (C) 2013, James Jolly
 See MIT-LICENSE.txt for legalese and README.md for usage.
 """
 
